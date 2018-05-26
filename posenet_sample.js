@@ -132,11 +132,8 @@ function ballsDecision(ctx,wrists){
 	    wrists.forEach((wrist) => {
 		if((balls[i].x - 50)  <= wrist.position.x && wrist.position.x <= (balls[i].x + 50) &&
 		   (balls[i].y - 50) <= wrist.position.y && wrist.position.y <= (balls[i].y + 50)){
-		    new Promise(resolve => {
-			score += 10;
-		    });
+		    score += 10;
 		    balls[i] = resetBall();
-		    return;
 		}
 	    });
 	    ctx.beginPath();
