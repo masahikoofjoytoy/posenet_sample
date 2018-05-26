@@ -12,8 +12,12 @@ const contentWidth = 800;
 const contentHeight = 600;
 const ballNum = 2;
 const colors = ["red","blue","green"];
+const fontLayout = "bold 50px Arial";
 
 let balls = [];
+let score = 0;
+let timeLimit = 200;
+let printLimit = timeLimit / 10;
 balls = initBalls(ballNum);
 bindPage();
 
@@ -74,12 +78,35 @@ function detectPoseInRealTime(video, net) {
         ctx.drawImage(video, 0, 0, contentWidth, contentWidth);
         ctx.restore();
 
-        poses.forEach(({ score, keypoints }) => {
-            drawWristPoint(keypoints[9],ctx);
-            drawWristPoint(keypoints[10],ctx);
-            ballsDecision(ctx,[keypoints[9],keypoints[10]]);
-        });
+	if (timeLimit % 10 == 0) {
+	    printLimit = timeLimit / 10;
+	}
+	ctx.font = fontLayout;
+	ctx.fillStyle = "blue";
+	ctx.fillText(printLimit, 670, 70);
+	ctx.fill();
 
+	if (timeLimit == 0) {
+	    ctx.font = fontLayout;
+	    ctx.fillStyle = "red";
+	    ctx.fillText("TIME UP", 300, 300);
+	    ctx.fill();
+	} else {
+            poses.forEach(({ s, keypoints }) => {
+		drawWristPoint(keypoints[9],ctx);
+		drawWristPoint(keypoints[10],ctx);
+		ballsDecision(ctx,[keypoints[9],keypoints[10]]);
+            });
+	}
+
+	ctx.font = fontLayout;
+	ctx.fillStyle = "red";
+	ctx.fillText(score, 70, 70);
+	ctx.fill();
+	timeLimit -= 1;
+	if(timeLimit <= 0){
+	    timeLimit = 0;
+	}
 
         stats.end();
 
@@ -97,24 +124,26 @@ function drawWristPoint(wrist,ctx){
 
 function ballsDecision(ctx,wrists){
     for(i=0;i<ballNum;i++){
-        wrists.forEach((wrist) => {
-            if((balls[i].x - 50)  <= wrist.position.x && wrist.position.x <= (balls[i].x + 50) &&
-               (balls[i].y - 50) <= wrist.position.y && wrist.position.y <= (balls[i].y + 50)){
-                balls[i] = resetBall();
-                return;
-            } else {
-                balls[i].y += 20;
-                if (balls[i].y > contentHeight) {
-                    balls[i] = resetBall();
-                    return;
-                }  else {
-                    ctx.beginPath();
-                    ctx.arc(balls[i].x , balls[i].y, 25, 0, 2 * Math.PI);
-                    ctx.fillStyle = balls[i].color
-                    ctx.fill();
-                }
-            }
-        });
+        balls[i].y += 30;
+        if (balls[i].y > contentHeight) {
+            balls[i] = resetBall();
+            return;
+        }  else {
+	    wrists.forEach((wrist) => {
+		if((balls[i].x - 50)  <= wrist.position.x && wrist.position.x <= (balls[i].x + 50) &&
+		   (balls[i].y - 50) <= wrist.position.y && wrist.position.y <= (balls[i].y + 50)){
+		    new Promise(resolve => {
+			score += 10;
+		    });
+		    balls[i] = resetBall();
+		    return;
+		}
+	    });
+	    ctx.beginPath();
+            ctx.arc(balls[i].x , balls[i].y, 25, 0, 2 * Math.PI);
+            ctx.fillStyle = balls[i].color
+            ctx.fill();
+        }
     }
 }
 
