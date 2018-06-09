@@ -18,6 +18,9 @@ let balls = [];
 let score = 0;
 let timeLimit = 200;
 let printLimit = timeLimit / 10;
+let naviko = new Image();
+let navScale = 1
+naviko.src = "naviko.png"
 balls = initBalls(ballNum);
 bindPage();
 
@@ -75,7 +78,7 @@ function detectPoseInRealTime(video, net) {
         ctx.save();
         ctx.scale(-1, 1);
         ctx.translate(-contentWidth, 0);
-        ctx.drawImage(video, 0, 0, contentWidth, contentWidth);
+        ctx.drawImage(video, 0, 0, contentWidth, contentHeight);
         ctx.restore();
 
 	if (timeLimit % 10 == 0) {
@@ -93,6 +96,7 @@ function detectPoseInRealTime(video, net) {
 	    ctx.fill();
 	} else {
             poses.forEach(({ s, keypoints }) => {
+		drawNaviko(keypoints[0],keypoints[1],ctx);
 		drawWristPoint(keypoints[9],ctx);
 		drawWristPoint(keypoints[10],ctx);
 		ballsDecision(ctx,[keypoints[9],keypoints[10]]);
@@ -120,6 +124,14 @@ function drawWristPoint(wrist,ctx){
     ctx.arc(wrist.position.x , wrist.position.y, 3, 0, 2 * Math.PI);
     ctx.fillStyle = "pink";
     ctx.fill();
+}
+
+function drawNaviko(nose, leye, ctx){
+    navScale = (leye.position.x - nose.position.x - 50) / 20;
+    if (navScale < 1) navScale = 1;
+    let nw = naviko.width * navScale;
+    let nh = naviko.height * navScale;
+    ctx.drawImage(naviko,nose.position.x - nh / 2 , nose.position.y - nh / 2, nw, nh);
 }
 
 function ballsDecision(ctx,wrists){
