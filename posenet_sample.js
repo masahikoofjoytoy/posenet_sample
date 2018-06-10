@@ -131,7 +131,7 @@ function drawNaviko(nose, leye, ctx){
     if (navScale < 1) navScale = 1;
     let nw = naviko.width * navScale;
     let nh = naviko.height * navScale;
-    ctx.drawImage(naviko,nose.position.x - nh / 2 , nose.position.y - nh / 2, nw, nh);
+    ctx.drawImage(naviko,nose.position.x - nh / 2 , nose.position.y - nh / 1.5, nw, nh);
 }
 
 function ballsDecision(ctx,wrists){
